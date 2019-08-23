@@ -770,8 +770,16 @@ var RevealWhiteboard = (function(){
      */
     function saveAnnotations()
     {
+        console.log("save annotations to decker");
         var xhr = new XMLHttpRequest();
         xhr.open('put', annotationURL(), true);
+        xhr.onloadend = function() {
+            if (xhr.status == 200) {
+                console.log("save success");
+            } else {
+                console.log("save error " + this.status);
+            }
+        };
         xhr.send(annotationJSON());
     }
 
@@ -781,6 +789,9 @@ var RevealWhiteboard = (function(){
      */
     function downloadAnnotations()
     {
+        saveAnnotations();
+        return;
+
         var a = document.createElement('a');
         a.classList.add("whiteboard"); // otherwise a.click() is prevented/cancelled by global listener
         document.body.appendChild(a);
