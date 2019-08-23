@@ -656,7 +656,7 @@ var RevealWhiteboard = (function(){
      * load scribbles from file
      * use Promise to ensure loading in init()
      */
-    function loadData( filename )
+    function loadAnnotations()
     {
         return new Promise( function(resolve) {
 
@@ -674,9 +674,7 @@ var RevealWhiteboard = (function(){
             }
 
             // determine scribble filename
-            var url = location.pathname;
-            var basename = (url.split('\\').pop().split('/').pop().split('.'))[0];
-            var filename = basename + '.json';
+            var filename = annotationFilename();
 
             console.log("whiteboard load " + filename);
             var req = new XMLHttpRequest();
@@ -729,27 +727,66 @@ var RevealWhiteboard = (function(){
 
 
     /*
+     * filename for loading/saving annotations
+     */
+    function annotationFilename()
+    {
+        var url = location.pathname;
+        var basename = (url.split('\\').pop().split('/').pop().split('.'))[0];
+        var filename = basename + "-annot.json";
+        return filename;
+    }
+
+
+    /*
+     * URL for loading/saving annotations
+     */
+    function annotationURL()
+    {
+        var url = location.href;
+        var basename = url.substring(0, url.lastIndexOf("."));
+        var filename = basename + "-annot.json";
+        return filename;
+    }
+
+
+    /*
+     * return annotations as JSON object
+     */
+    function annotationJSON()
+    {
+        // function to adjust precision of numbers when converting to JSON
+        function twoDigits(key, val) {
+            if (val != undefined)
+                return val.toFixed ? Number(val.toFixed(2)) : val;
+        }
+        var blob = new Blob( [ JSON.stringify( storage, twoDigits ) ], { type: "application/json"} );
+        return blob;
+    }
+
+
+    /*
+     * save annotations to decker server
+     */
+    function saveAnnotations()
+    {
+        var xhr = new XMLHttpRequest();
+        xhr.open('put', annotationURL(), true);
+        xhr.send(annotationJSON());
+    }
+
+
+    /*
      * download scribbles to user's Download directory
      */
-    function downloadNotes()
+    function downloadAnnotations()
     {
         var a = document.createElement('a');
         a.classList.add("whiteboard"); // otherwise a.click() is prevented/cancelled by global listener
         document.body.appendChild(a);
         try {
-            // function to adjust precision of numbers when converting to JSON
-            function twoDigits(key, val) {
-                if (val != undefined)
-                    return val.toFixed ? Number(val.toFixed(2)) : val;
-            }
-            var blob = new Blob( [ JSON.stringify( storage, twoDigits ) ], { type: "application/json"} );
-
-            // setup link and filename for downloaded scribbles
-            var url = location.pathname;
-            var basename = (url.split('\\').pop().split('/').pop().split('.'))[0];
-            var filename = basename + ".json";
-            a.download = filename;
-            a.href = window.URL.createObjectURL( blob );
+            a.download = annotationFilename();
+            a.href = window.URL.createObjectURL( annotationJSON() );
 
         } catch( error ) {
             a.innerHTML += " (" + error + ")";
@@ -1710,19 +1747,19 @@ var RevealWhiteboard = (function(){
                 if (printMode)
                 {
                     // load scribbles, create whiteboard slides, then resolve promise
-                    loadData().then(createPrintout).then(resolve);
+                    loadAnnotations().then(createPrintout).then(resolve);
                 }
                 else
                 {
                     // load scribbles, then resolve promise
-                    loadData().then(resolve);
+                    loadAnnotations().then(resolve);
                 }
             });
         },
 
 
         // menu plugin need access to trigger it
-        downloadNotes: downloadNotes 
+        downloadNotes: downloadAnnotations
     }
 
 })();
