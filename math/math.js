@@ -13,7 +13,6 @@ var RevealMath = window.RevealMath || (function(){
 
 	var defaultOptions = {
 		messageStyle: 'none',
-        extensions: ["TeX/AMSmath.js"],
 		tex2jax: {
 			inlineMath: [ [ '$', '$' ], [ '\\(', '\\)' ] ],
 			skipTags: [ 'script', 'noscript', 'style', 'textarea', 'pre' ]
@@ -80,6 +79,17 @@ var RevealMath = window.RevealMath || (function(){
 
                 loadScript( url, function() {
 
+                    // Firefox stores settings from MathJax menu in cookies.
+                    // Prevent cookie from changing the renderer, since only
+                    // SVG will be installed. Do this by overwriting the
+                    // cookie's renderer setting.
+                    var keks = MathJax.HTML.Cookie.Get("menu");
+                    if (keks && keks.renderer)
+                    {
+                        MathJax.HTML.Cookie.Set("menu", { renderer: "" });
+                    }
+
+                    // pass config options to MathJax
                     MathJax.Hub.Config( options );
 
                     // Typeset followed by an immediate reveal.js layout since
