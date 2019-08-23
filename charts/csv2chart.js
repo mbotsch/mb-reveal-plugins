@@ -150,13 +150,14 @@ var RevealChart = window.RevealChart || (function(){
 	// set global chart options
 	var config = chartConfig["defaults"];
 	if ( config ) {
-
-        // MARIO: when in print mode, set animation duration to zero
-        if (( /print-pdf/gi ).test( window.location.search ))
-            config["global"]["animation"] = '{ "duration": 0 }';
-
 		mergeRecursive(Chart.defaults, config);
 	}		
+
+
+    // MARIO: when in print mode, set animation duration to zero
+    // otherwise we might get half-ready charts in exported PDF
+    if (( /print-pdf/gi ).test( window.location.search ))
+        Chart.defaults.global.animation = false;
 
 	Reveal.addEventListener('ready', function(){
 		initializeCharts();
