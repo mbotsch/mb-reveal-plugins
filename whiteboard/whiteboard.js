@@ -136,16 +136,19 @@ var RevealWhiteboard = (function(){
         return b;
     }
 
-    var buttonBoard      = createButton(8, 8, "fa-edit");
+    var buttonSave      = createButton(8, 8, "fa-save");
+    buttonSave.onclick  = function(){ saveAnnotations(); }
+
+    var buttonBoard      = createButton(8, 40, "fa-edit");
     buttonBoard.onclick  = function(){ toggleWhiteboard(); }
 
-    var buttonPen        = createButton(8, 40, "fa-pen");
+    var buttonPen        = createButton(8, 72, "fa-pen");
     buttonPen.onclick    = function(){ 
         if (pktimer)    clearTimeout(pktimer);
         if (!pk.isOpen) selectTool(ToolType.PEN); 
     }
 
-    var buttonEraser     = createButton(8, 72, "fa-eraser");
+    var buttonEraser     = createButton(8, 104, "fa-eraser");
     buttonEraser.onclick = function(){ selectTool(ToolType.ERASER); }
 
     //var buttonLaser      = createButton(8, 104, "fa-magic");
@@ -674,7 +677,7 @@ var RevealWhiteboard = (function(){
             }
 
             // determine scribble filename
-            var filename = annotationFilename();
+            var filename = annotationURL();
 
             console.log("whiteboard load " + filename);
             var req = new XMLHttpRequest();
@@ -733,7 +736,14 @@ var RevealWhiteboard = (function(){
     {
         var url = location.pathname;
         var basename = (url.split('\\').pop().split('/').pop().split('.'))[0];
-        var filename = basename + "-annot.json";
+
+        // decker filenames vs. Mario filenames
+        var filename;
+        if (basename.substring(basename.length-5, basename.length) == "-deck")
+            filename = basename.substring(0, basename.length-5) + "-annot.json";
+        else
+            filename = basename + ".json";
+
         return filename;
     }
 
@@ -745,7 +755,14 @@ var RevealWhiteboard = (function(){
     {
         var url = location.href;
         var basename = url.substring(0, url.lastIndexOf("."));
-        var filename = basename + "-annot.json";
+
+        // decker filenames vs. Mario filenames
+        var filename;
+        if (basename.substring(basename.length-5, basename.length) == "-deck")
+            filename = basename.substring(0, basename.length-5) + "-annot.json";
+        else
+            filename = basename + ".json";
+
         return filename;
     }
 
@@ -770,14 +787,16 @@ var RevealWhiteboard = (function(){
      */
     function saveAnnotations()
     {
-        console.log("save annotations to decker");
+        console.log("whiteboard: save annotations to decker");
         var xhr = new XMLHttpRequest();
         xhr.open('put', annotationURL(), true);
         xhr.onloadend = function() {
             if (xhr.status == 200) {
-                console.log("save success");
+                console.log("whiteboard: save success");
+                needSave = false;
+                buttonSave.style.color = "lightgrey";
             } else {
-                console.log("save error " + this.status);
+                console.error("whiteboard: save error " + this.status);
             }
         };
         xhr.send(annotationJSON());
@@ -789,9 +808,6 @@ var RevealWhiteboard = (function(){
      */
     function downloadAnnotations()
     {
-        saveAnnotations();
-        return;
-
         var a = document.createElement('a');
         a.classList.add("whiteboard"); // otherwise a.click() is prevented/cancelled by global listener
         document.body.appendChild(a);
@@ -807,6 +823,7 @@ var RevealWhiteboard = (function(){
         document.body.removeChild(a);
 
         needSave = false;
+        buttonSave.style.color = "lightgrey";
     }
 
 
@@ -1086,6 +1103,7 @@ var RevealWhiteboard = (function(){
         var slideData = getSlideData();
         slideData.events.push(event);
         needSave = true;
+        buttonSave.style.color = "#2a9ddf";
     }
 
 
