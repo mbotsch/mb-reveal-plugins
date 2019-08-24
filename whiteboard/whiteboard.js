@@ -796,7 +796,8 @@ var RevealWhiteboard = (function(){
                 needSave = false;
                 buttonSave.style.color = "lightgrey";
             } else {
-                console.error("whiteboard: save error " + this.status);
+                console.log("whiteboard: could not save to decker, download instead");
+                downloadAnnotations();
             }
         };
         xhr.send(annotationJSON());
