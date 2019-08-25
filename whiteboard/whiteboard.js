@@ -76,8 +76,8 @@ var RevealWhiteboard = (function(){
     cursorCanvas.height = 20;
 
     // different cursors used by whiteboard
-    var eraserCursor = 'url("' + path + 'sponge.png") 25 20, auto';
-    var eraserRadius = 15;
+    var eraserCursor;
+    var eraserRadius = 10;
     var laserCursor;
     var penCursor;
     var currentCursor;
@@ -289,16 +289,15 @@ var RevealWhiteboard = (function(){
         document.body.removeChild(elem);
 
         // setup pen color with alpha=255 and alpha=0
-        var col1 = "rgba(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ",255)";
-        var col2 = "rgba(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ",128)";
-        var col3 = "rgba(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ",0)";
+        var col1 = "rgba(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ",1.0)";
+        var col2 = "rgba(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ",0.0)";
 
         var ctx  = cursorCanvas.getContext("2d");
 
         // render pen cursor
         var grdPen   = ctx.createRadialGradient(10, 10, 1, 10, 10, 3);
         grdPen.addColorStop(0, col1);
-        grdPen.addColorStop(1, col3);
+        grdPen.addColorStop(1, col2);
         ctx.clearRect(0, 0, 20, 20); 
         ctx.fillStyle = grdPen;
         ctx.fillRect(0, 0, 20, 20);
@@ -306,12 +305,23 @@ var RevealWhiteboard = (function(){
 
         // render laser cursor
         var grdLaser = ctx.createRadialGradient(10, 10, 1, 10, 10, 10);
-        grdLaser.addColorStop(0, col2);
-        grdLaser.addColorStop(1, col3);
+        grdLaser.addColorStop(0, col1);
+        grdLaser.addColorStop(1, col2);
         ctx.clearRect(0, 0, 20, 20); 
         ctx.fillStyle = grdLaser;
         ctx.fillRect(0, 0, 20, 20);
         laserCursor = "url(" + cursorCanvas.toDataURL() + ") 10 10, auto";
+
+        // render eraser cursor
+        ctx.clearRect(0, 0, 20, 20); 
+        ctx.strokeStyle = "rgba(128, 128, 128, 0.8)";
+        ctx.fillStyle   = "rgba(255, 255, 255, 0.8)";
+        ctx.lineWidth   = 1;
+        ctx.beginPath();
+        ctx.arc(10, 10, eraserRadius*Reveal.getScale(), 0, 2*Math.PI);
+        ctx.fill(); 
+        ctx.stroke(); 
+        eraserCursor = "url(" + cursorCanvas.toDataURL() + ") 10 10, auto";
 
         // reset cursor
         container.style.cursor = tool ? 'none' : '';
@@ -1192,7 +1202,7 @@ var RevealWhiteboard = (function(){
     {
         ctx.save();
         ctx.globalCompositeOperation = "destination-out";
-        ctx.lineWidth = 20;
+        ctx.lineWidth = 2 * eraserRadius;
         ctx.beginPath();
 
         // old syntax
@@ -1720,6 +1730,9 @@ var RevealWhiteboard = (function(){
     Reveal.addEventListener( 'slidechanged',   updateGUI );
     Reveal.addEventListener( 'fragmentshown',  updateGUI );
     Reveal.addEventListener( 'fragmenthidden', updateGUI );
+
+    // eraser cursor has to be updated on resize (i.e. scale change)
+    Reveal.addEventListener( 'resize',         updateGUI );
 
 
 
