@@ -82,7 +82,6 @@ var RevealWhiteboard = (function(){
     var penCursor;
     var currentCursor;
     var penColor  = "red";
-    var color = [ "red", "black" ]; // old color handling
 
     // store which tools are active
     var boardMode = false;
@@ -900,11 +899,14 @@ var RevealWhiteboard = (function(){
         canvas.style.height     = height + "px";
         canvas.width            = width  * canvasScale;
         canvas.height           = height * canvasScale;
+
+        // setup context
         var ctx = canvas.getContext("2d");
         ctx.scale(canvasScale, canvasScale);
         ctx.lineCap   = 'round';
         ctx.lineJoint = 'round';
         ctx.lineWidth = 2;
+
 
         // slide annotations
         for (var i = 0; i < storage[0].data.length; i++)
@@ -924,7 +926,7 @@ var RevealWhiteboard = (function(){
             var slideData = getSlideData( storage[0].data[i].slide, 0 );
 
             // draw strokes to image
-            clearCanvas(ctx);
+            clearCanvas(ctx, canvasScale);
             for (var j = 0; j < slideData.events.length; j++)
                 playEvent(ctx, slideData.events[j]);
 
@@ -941,9 +943,6 @@ var RevealWhiteboard = (function(){
             img.style.boxSizing = "border-box";
             img.style.zIndex    = "34";
             slide.appendChild( img );
-
-            // clear canvas again
-            clearCanvas(ctx);
 
             // add fragment data
             if (f != undefined)
@@ -978,51 +977,45 @@ var RevealWhiteboard = (function(){
 
             if ( slideData.events.length )
             {
-                // setup image canvas
-                var scribbleHeight  = whiteboardHeight( storage[1].data[i].slide );
-                var canvasHeight    = height * Math.max(1, Math.ceil(scribbleHeight/height));
-                canvas.width        = width * canvasScale;
-                canvas.height       = canvasHeight * canvasScale;
-                canvas.style.height = canvasHeight + "px";
-                canvas.style.background = "white";
-                ctx.scale(canvasScale, canvasScale);
-                ctx.fillStyle = "white";
-                ctx.rect(0, 0, canvas.width/canvasScale, canvas.height/canvasScale);
-                ctx.fill();
-                penColor = "black";
+                var scribbleHeight = whiteboardHeight( storage[1].data[i].slide );
 
-                // draw strokes to image
-                for (var j = 0; j < slideData.events.length; j++)
-                    playEvent(ctx, slideData.events[j]);
+                // split oversize whiteboards into multiple slides
+                for (var y = 0; y < scribbleHeight; y += height)
+                {
+                    // draw strokes to image (translate to respective page)
+                    clearCanvas(ctx, canvasScale);
+                    ctx.save();
+                    ctx.translate(0, -y);
+                    for (var j = 0; j < slideData.events.length; j++)
+                        playEvent(ctx, slideData.events[j]);
+                    ctx.restore();
 
-                // create new slide element
-                var newSlide = document.createElement( 'section' );
-                newSlide.classList.add( 'present' );
-                newSlide.innerHTML = '<h1 style="visibility:hidden">Whiteboard Drawing</h1>';
-                newSlide.style.width  = "100%";
-                newSlide.style.height = canvas.height/canvasScale + "px";
+                    // create new slide element
+                    var newSlide = document.createElement( 'section' );
+                    newSlide.classList.add( 'present' );
+                    newSlide.style.width  = "100%";
+                    newSlide.style.height = canvas.height/canvasScale + "px";
 
-                // convert canvas to image, add image to slide
-                var img = new Image();
-                img.src = canvas.toDataURL();
-                img.style.position  = "absolute";
-                img.style.top       = "0px";
-                img.style.left      = "0px";
-                img.style.width     = width + "px";
-                img.style.height    = canvasHeight + "px";
-                img.style.maxHeight = canvasHeight + "px";
-                img.style.border    = "none";
-                img.style.margin    = "0px";
-                img.style.zIndex    = "34";
-                newSlide.appendChild( img );
-                console.log("image height: " + img.style.height);
-                console.log("slide height: " + newSlide.style.height);
+                    // convert page to image, add image to slide
+                    var img = new Image();
+                    img.src = canvas.toDataURL();
+                    img.style.position  = "absolute";
+                    img.style.top       = "0px";
+                    img.style.left      = "0px";
+                    img.style.width     = width  + "px";
+                    img.style.height    = height + "px";
+                    img.style.maxHeight = height + "px";
+                    img.style.border    = "none";
+                    img.style.margin    = "0px";
+                    img.style.zIndex    = "34";
+                    newSlide.appendChild( img );
 
-                if ( nextSlide[i] != null ) {
-                    parent.insertBefore( newSlide, nextSlide[i] );
-                }
-                else {
-                    parent.append( newSlide );
+                    if ( nextSlide[i] != null ) {
+                        parent.insertBefore( newSlide, nextSlide[i] );
+                    }
+                    else {
+                        parent.append( newSlide );
+                    }
                 }
             }
         }
@@ -1084,9 +1077,9 @@ var RevealWhiteboard = (function(){
     /*
      * clear given canvas
      */
-    function clearCanvas( ctx )
+    function clearCanvas( ctx, scale=canvasScale )
     {
-        ctx.clearRect( 0, 0, ctx.canvas.width/canvasScale, ctx.canvas.height/canvasScale );
+        ctx.clearRect( 0, 0, ctx.canvas.width/scale, ctx.canvas.height/scale );
     }
 
 
