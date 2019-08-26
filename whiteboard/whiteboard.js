@@ -421,6 +421,7 @@ var RevealWhiteboard = (function(){
 
             case ToolType.ERASER:
                 buttonEraser.style.color = "#2a9ddf";
+                clearTimeout( selectCursorTimeout );
                 selectCursor(eraserCursor);
                 break;
 
