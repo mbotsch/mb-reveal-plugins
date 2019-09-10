@@ -1735,6 +1735,13 @@ var RevealWhiteboard = (function(){
     // eraser cursor has to be updated on resize (i.e. scale change)
     Reveal.addEventListener( 'resize',         updateGUI );
 
+    // inject laser cursor to document body
+    Reveal.addEventListener( 'ready', function() {
+        updateCursor();
+        document.body.style.cursor = laserCursor;
+    });
+
+
 
 
     /*****************************************************************
