@@ -3,6 +3,16 @@
  * of reveal.js slides. Essentially a thin wrapper for MathJax.
  *
  * @author Hakim El Hattab
+ *
+ * Modifications by Mario Botsch:
+ * - disable matching font height, which allow disabling 
+ *   math typesetting on each slide change
+ * - disable fast preview
+ * - disable AssistiveMML, since it duplicates math in speaker notes
+ * - disable SVG font caches, since it doesn't work in speaker notes
+ * - disable Firefox's cookie mechanism which overrides renderer setting
+ * - use promise mechanism to ensure that math is typset before PDF print
+ *
  */
 var RevealMath = window.RevealMath || (function(){
 
@@ -25,7 +35,7 @@ var RevealMath = window.RevealMath || (function(){
         "fast-preview": { disabled: true },
         "CommonHTML": { matchFontHeight: false },
         "HTML-CSS":   { matchFontHeight: false },
-        "SVG":        { matchFontHeight: false, scale: "90", useFontCache: true, useGlobalCache: false }
+        "SVG":        { matchFontHeight: false, scale: "90", useFontCache: false, useGlobalCache: false }
 	};
 
 	function defaults( options, defaultOptions ) {
