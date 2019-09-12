@@ -786,7 +786,7 @@ var RevealWhiteboard = (function(){
      */
     function annotationURL()
     {
-        var url = location.href;
+        var url = location.origin + location.pathname;
         var basename = url.substring(0, url.lastIndexOf("."));
 
         // decker filenames vs. Mario filenames
