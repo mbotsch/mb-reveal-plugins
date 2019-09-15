@@ -11,15 +11,18 @@
 ******************************************************************/
 
 var RevealChart = window.RevealChart || (function(){
-	function parseJSON(str) {
-	    var json;
-	    try {
-        	json = JSON.parse(str);
-	    } catch (e) {
-        	return null;
-    		}
-            return json;
-	}
+    function parseJSON(str) {
+        var json;
+        try {
+            json = JSON.parse(str);
+        } catch (e) {
+            var idx = Reveal.getIndices();
+            console.log("chart error on slide " + idx.h + "." + idx.v + ":\n" + e);
+            console.log(str);
+            return null;
+        }
+        return json;
+    }
 
 	/*
 	* Recursively merge properties of two objects 
@@ -71,7 +74,13 @@ var RevealChart = window.RevealChart || (function(){
 		// if labels are not defined, get them from first line
 		if ( chartData.labels === null && lines.length > 0 ) {
 			chartData.labels = lines[0].split(',');
-			chartData.labels.shift();
+
+            // MARIO: remove whitespace around labels
+            for (var i=0; i<chartData.labels.length; i++)
+                chartData.labels[i] = chartData.labels[i].trim();
+
+			// MARIO: do NOT remove first element
+            // chartData.labels.shift();
 			lines.shift();
 		} 
 		// get data values
@@ -102,6 +111,39 @@ var RevealChart = window.RevealChart || (function(){
 	}
 
 	var initializeCharts = function(){
+
+        // MARIO: extract chart data from pre.code elements and convert to canvas
+		var types     = [ "bar", "horizontalBar", "line", "radar", "doughnut", "pie", "polarArea" ];
+        var classes   = types.map( s => (s+"-chart").toLowerCase() );
+        var selectors = classes.map( s => "pre."+s ).join();
+    
+		var charts = document.querySelectorAll(selectors);
+		for (var i = 0; i < charts.length; i++ ){
+            var chart = charts[i];
+
+            // create canvas element
+            var canvas = document.createElement('canvas');
+
+            // determine chart type
+            var type;
+            for (var j=0; j<classes.length; j++) {
+                if (chart.classList.contains(classes[j])) {
+                    type = types[j];
+                    break;
+                }
+            }
+            canvas.setAttribute("data-chart", type);
+
+            // copy chart definition to canvas
+            var content = chart.firstChild.innerText; // don't use innerHTML, it's escaped
+            canvas.innerHTML = content;
+
+            // replace pre element by canvas element
+            var parent = chart.parentElement;
+            parent.insertBefore(canvas, chart);
+            parent.removeChild(chart);
+        }
+
 		// Get all canvases
 		var canvases = document.querySelectorAll("canvas");
 		for (var i = 0; i < canvases.length; i++ ){
