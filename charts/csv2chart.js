@@ -182,6 +182,10 @@ var RevealChart = window.RevealChart || (function(){
 
 	function recreateChart(canvas) {
 		var config = canvas.chart.config;
+
+        // MARIO: inject correct pixel ratio, since global setting will not be used on *recreation*
+        config.options.devicePixelRatio = pixelRatio;
+
 		canvas.chart.destroy();
 		setTimeout( function() { canvas.chart = new Chart(canvas, config); }, 500); // wait for slide transition
 	}
@@ -196,13 +200,37 @@ var RevealChart = window.RevealChart || (function(){
 	}		
 
 
-    // MARIO: when in print mode, set animation duration to zero
-    // otherwise we might get half-ready charts in exported PDF
-    if (( /print-pdf/gi ).test( window.location.search ))
-        Chart.defaults.global.animation = false;
+    // are we in PDF export mode?
+    var printMode = ( /print-pdf/gi ).test( window.location.search );
+
+
+    // MARIO: when Reveal's scale is >1, i.e., when it is enlarging the slides
+    // increase the pixelRatio for canvas elements to get crisper results.
+    function adjustPixelRatio() 
+    {
+        if (printMode)
+            pixelRatio = 2;
+        else if (Reveal.getScale() > 1)
+            pixelRatio = Math.max(window.devicePixelRatio, 2);
+        else
+            pixelRatio = 1;
+
+        // set default pixel ratio. this one is used for *initially* creating
+        // charts, *not* for recreateChart. 
+        Chart.defaults.global.devicePixelRatio = pixelRatio;
+    }
+
 
 	Reveal.addEventListener('ready', function(){
+
+        // MARIO: when in print mode, set animation duration to zero
+        // otherwise we might get half-ready charts in exported PDF
+        if (printMode)
+            Chart.defaults.global.animation = false;
+
+        adjustPixelRatio();
 		initializeCharts();
+
 		Reveal.addEventListener('slidechanged', function(){
 			var canvases = Reveal.getCurrentSlide().querySelectorAll("canvas[data-chart]");
 			for (var i = 0; i < canvases.length; i++ ){
@@ -212,5 +240,7 @@ var RevealChart = window.RevealChart || (function(){
 			}
 		
 		});
+
+        Reveal.addEventListener('resize', adjustPixelRatio);
 	});
 })();
