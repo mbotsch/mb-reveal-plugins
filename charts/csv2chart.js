@@ -213,7 +213,7 @@ var RevealChart = window.RevealChart || (function(){
         else if (Reveal.getScale() > 1)
             pixelRatio = Math.max(window.devicePixelRatio, 2);
         else
-            pixelRatio = 1;
+            pixelRatio = window.devicePixelRatio;
 
         // set default pixel ratio. this one is used for *initially* creating
         // charts, *not* for recreateChart. 
