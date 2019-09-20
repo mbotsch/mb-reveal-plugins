@@ -99,13 +99,13 @@ var RevealQuiz = (function(){
     document.querySelector(".reveal").appendChild( votes_div );
 
 
+    var e = document.getElementById("quiz-qr");
+    if (e) e.classList.add("quiz-qr");
 
     // generate QR code (user has to place DIV with id="quiz-qr" in HTML)
     if (typeof(QRCode) != 'undefined')
     {
-        var e = document.getElementById("quiz-qr");
-        if (e)
-        {
+        Array.from(document.getElementsByClassName("quiz-qr")).forEach(function(e){
             var size = parseInt(e.style.width, 10) || 300;
             var qrcode = new QRCode("quiz-qr", {
                 text:         server,
@@ -116,13 +116,15 @@ var RevealQuiz = (function(){
                 correctLevel: QRCode.CorrectLevel.H
             });
 	        qrcode.makeCode(server);
-        }
+        });
     }
 
-
-    // type URL in respective DIV
     var e = document.getElementById("quiz-url");
-    if (e) e.innerHTML = server;
+    if (e) e.classList.add("quiz-url");
+    Array.from(document.getElementsByClassName("quiz-url")).forEach(function(e){
+        e.innerHTML = server;
+    });
+
 
 
     // load WWM jingles
