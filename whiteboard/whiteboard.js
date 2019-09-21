@@ -464,13 +464,13 @@ var RevealWhiteboard = (function(){
         if (tool)
         {
             container.style.border = "1px solid " + penColor;
-            drawingCanvas[mode].canvas.style.pointerEvents = "auto";
         }
         else
         {
             container.style.border = "1px solid transparent";
-            drawingCanvas[mode].canvas.style.pointerEvents = "none";
         }
+        drawingCanvas[mode].canvas.style.pointerEvents = (tool || laser) ? "auto" : "none";
+
     }
 
     /*
