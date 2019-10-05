@@ -76,6 +76,7 @@ var RevealWhiteboard = (function(){
     var penCursor;
     var currentCursor;
     var penColor  = "red";
+    var color = [ "red", "black" ]; // old color handling
 
     // canvas for dynamic cursor generation
     var cursorCanvas = document.createElement( 'canvas' );
