@@ -85,6 +85,9 @@ c:[{cN:"comment",b:/\(\*/,e:/\*\)/},e.ASM,e.QSM,e.CNM,{b:/\{/,e:/\}/,i:/:/}]}});
 				// Escape HTML tags unless the "data-noescape" attrbute is present
 				if( config.escapeHTML && !block.hasAttribute( 'data-noescape' )) {
 					block.innerHTML = block.innerHTML.replace( /</g,"&lt;").replace(/>/g, '&gt;' );
+
+                    // MARIO: reconstruct <mark> and </mark> for highlighting code!
+                    block.innerHTML = block.innerHTML.replace(/&lt;mark&gt;/g,"<mark>").replace(/&lt;\/mark&gt;/g,"</mark>");
 				}
 
 				// Re-highlight when focus is lost (for contenteditable code)
