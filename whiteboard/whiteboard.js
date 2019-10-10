@@ -1732,6 +1732,21 @@ var RevealWhiteboard = (function(){
     }, true );
 
 
+    // bind to undo event (CTRL-Z or CMD-Z).
+    // doesn't work with Reveal's key bindings,
+    // probably due to CTRL/CMD key and the 
+    // missing preventDefault.
+    window.addEventListener('keydown', function(evt) 
+    { 
+        if ((evt.ctrlKey || evt.metaKey) && (!evt.shiftKey) &&
+            String.fromCharCode(evt.which).toLowerCase() == 'z') 
+        {
+            evt.preventDefault();
+            drawUndo();
+        }
+    });
+
+
 
     // whenever slide changes, update slideIndices and redraw
     Reveal.addEventListener( 'ready',          slideChanged );
