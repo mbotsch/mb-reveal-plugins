@@ -832,19 +832,6 @@ var RevealMenu = window.RevealMenu || (function(){
 			}
 
 
-            // MARIO: trigger print when PDF is prepared
-		    if (document.body.classList.contains('print-pdf'))
-            {
-                setTimeout(window.print, 1000); 
-            }
-            else
-            {
-                Reveal.addEventListener( 'pdf-ready', function(){ 
-                    setTimeout(window.print, 1000); 
-                });
-            }
-
-
 			module.toggle = toggleMenu;
 			module.openMenu = openMenu;
 			module.closeMenu = closeMenu;
