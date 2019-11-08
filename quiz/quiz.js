@@ -149,8 +149,14 @@ var RevealQuiz = (function(){
             jingleQuestion.pause();
             jingleAnswer.pause();
 
+            // if quiz is active -> close it
+            // (but only then, since it requires authentication)
+            if (serverState == "open")
+            {
+                closeBallot();
+            }
+
             // hide stuff
-            closeBallot();
             hideVotes();
             hideChart();
 
