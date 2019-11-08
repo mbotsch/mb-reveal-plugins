@@ -17,6 +17,9 @@ var RevealQuiz = (function(){
     // get quiz server
     var server = config.server || "http://graphics.uni-bielefeld.de:8080";
 
+    // the chart object
+    var myChart;
+
 
     // get path of script -> used for loading audio files
 	var path = scriptPath();
@@ -147,6 +150,7 @@ var RevealQuiz = (function(){
             jingleAnswer.pause();
 
             // hide stuff
+            closeBallot();
             hideVotes();
             hideChart();
 
@@ -342,11 +346,19 @@ var RevealQuiz = (function(){
             result[i] /= n;
         }
 
+        // destroy chart if it was created before (strictly required!)
+        if (myChart) 
+        {
+            myChart.destroy();
+        }
+
+
         // get labels as subset of this array
         var labels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'].slice(0, result.length);
 
+        // (re)create chart
         var ctx = chart.getContext('2d');
-        var myChart = new Chart(ctx, {
+        myChart = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: labels,
@@ -357,14 +369,13 @@ var RevealQuiz = (function(){
             },
             options: {
                 animation: { duration: 3000 },
-                legend: { display: false },
-                title: { display: false },
-                tooltips: { enabled : false },
+                legend:    { display: false },
+                title:     { display: false },
+                tooltips:  { enabled: false },
                 scales: {
                     yAxes: [{
-                        ticks: {
-                            beginAtZero: true
-                        }
+                        gridLines: { display: false },
+                        ticks: { beginAtZero: true }
                     }]
                 }
             }
@@ -375,7 +386,7 @@ var RevealQuiz = (function(){
     // ballot states
     function switchBallotState()
     {
-        console.log("old ballot state: " + ballotState);
+        //console.log("old ballot state: " + ballotState);
 
         switch (ballotState)
         {
