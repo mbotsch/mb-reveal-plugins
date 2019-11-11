@@ -33,9 +33,9 @@ var RevealMath = window.RevealMath || (function(){
         styles: { ".reveal section .MJXc-display": { margin: "0.5em 0em 1em 0em" },
                   ".reveal section .MathJax_SVG_Display": { margin: "0.5em 0em 1em 0em" } },
         "fast-preview": { disabled: true },
-        "CommonHTML": { mtextFontInherit: true, matchFontHeight: false },
-        "HTML-CSS":   { mtextFontInherit: true, matchFontHeight: false },
-        "SVG":        { mtextFontInherit: true, matchFontHeight: false, scale: "90", useFontCache: false, useGlobalCache: false }
+        "CommonHTML": { matchFontHeight: false },
+        "HTML-CSS":   { matchFontHeight: false },
+        "SVG":        { matchFontHeight: false, scale: "90", useFontCache: false, useGlobalCache: false }
 	};
 
 	function defaults( options, defaultOptions ) {
