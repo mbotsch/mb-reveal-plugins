@@ -12,7 +12,7 @@ var RevealQuiz = (function(){
     var timerVotes, timerStatus;
 
     // get config
-	var config = Reveal.getConfig().quiz || {};
+    var config = Reveal.getConfig().quiz || {};
 
     // get quiz server
     var server = config.server || "http://graphics.uni-bielefeld.de:8080";
@@ -22,31 +22,31 @@ var RevealQuiz = (function(){
 
 
     // get path of script -> used for loading audio files
-	var path = scriptPath();
-	function scriptPath() {
-		// obtain plugin path from the script element
+    var path = scriptPath();
+    function scriptPath() {
+        // obtain plugin path from the script element
         // !!! script has to be named "quiz.js" !!!
-		var path;
-		if (document.currentScript) {
-			path = document.currentScript.src.slice(0, -7);
-		} else {
-			var sel = document.querySelector('script[src$="/quiz.js"]')
-			if (sel) {
-				path = sel.src.slice(0, -7);
-			}
-		}
-		return path;
-	}
+        var path;
+        if (document.currentScript) {
+            path = document.currentScript.src.slice(0, -7);
+        } else {
+            var sel = document.querySelector('script[src$="/quiz.js"]')
+            if (sel) {
+                path = sel.src.slice(0, -7);
+            }
+        }
+        return path;
+    }
 
 
     // DIV for chart
     var chart_div = document.createElement( 'div' );
     chart_div.classList.add( 'overlay' );
-	chart_div.classList.add( 'visible' );
-	chart_div.setAttribute( 'data-prevent-swipe', '' );
+    chart_div.classList.add( 'visible' );
+    chart_div.setAttribute( 'data-prevent-swipe', '' );
     chart_div.style.visibility      = 'hidden';
-	chart_div.style.zIndex          = "34";
-	chart_div.style.position        = "absolute";
+    chart_div.style.zIndex          = "34";
+    chart_div.style.position        = "absolute";
     chart_div.style.left            = "auto";
     chart_div.style.top             = "auto";
     chart_div.style.right           = "10px";
@@ -55,13 +55,13 @@ var RevealQuiz = (function(){
     chart_div.style.height          = "320px";
     chart_div.style.margin          = "auto";
     chart_div.style.padding         = "5px";
-    chart_div.style.textAlign       = "center";
+    chart_div.style.textAlign       = "center"
     chart_div.style.border          = "3px solid #2a9ddf";
     chart_div.style.borderRadius    = "10px";
     chart_div.style.boxShadow       = "3px 5px 5px grey";
-	chart_div.style.backgroundColor = 'rgba(255,255,255,1.0)';
-	chart_div.style.transition      = 'none';
-	chart_div.style.transformOrigin = 'bottom right';
+    chart_div.style.backgroundColor = 'rgba(255,255,255,1.0)';
+    chart_div.style.transition      = 'none';
+    chart_div.style.transformOrigin = 'bottom right';
     document.querySelector(".reveal").appendChild( chart_div );
 
     // canvas for the actual chart
@@ -77,11 +77,11 @@ var RevealQuiz = (function(){
     // generate label for #votes
     var votes_div = document.createElement( 'div' );
     votes_div.classList.add( 'overlay' );
-	votes_div.classList.add( 'visible' );
-	votes_div.setAttribute( 'data-prevent-swipe', '' );
+    votes_div.classList.add( 'visible' );
+    votes_div.setAttribute( 'data-prevent-swipe', '' );
     votes_div.style.visibility      = 'hidden';
-	votes_div.style.zIndex          = "33";
-	votes_div.style.position        = "absolute";
+    votes_div.style.zIndex          = "33";
+    votes_div.style.position        = "absolute";
     votes_div.style.left            = "auto";
     votes_div.style.top             = "auto";
     votes_div.style.right           = "10px";
@@ -96,9 +96,9 @@ var RevealQuiz = (function(){
     votes_div.style.border          = "3px solid #2a9ddf";
     votes_div.style.borderRadius    = "10px";
     votes_div.style.boxShadow       = "3px 5px 5px grey";
-	votes_div.style.backgroundColor = 'rgba(255,255,255,1.0)';
+    votes_div.style.backgroundColor = 'rgba(255,255,255,1.0)';
     votes_div.style.cursor          = "help";
-	votes_div.style.transformOrigin = 'bottom right';
+    votes_div.style.transformOrigin = 'bottom right';
     document.querySelector(".reveal").appendChild( votes_div );
 
 
@@ -118,7 +118,7 @@ var RevealQuiz = (function(){
                 colorLight:   "#ffffff",
                 correctLevel: QRCode.CorrectLevel.H
             });
-	        qrcode.makeCode(server);
+            qrcode.makeCode(server);
         });
     }
 
@@ -168,41 +168,20 @@ var RevealQuiz = (function(){
             ballotState = "not_init";
             numAnswers  = 0;
 
-            // is this a quiz slide? -> find answers
-            // this is the OLD version, which should be deprecated sometime
-            var answers = Reveal.getCurrentSlide().getElementsByClassName('answer');
-            if (answers.length)
-            {
-                numAnswers += answers.length;
-
-                // hide answers' right/wrong classification
-                for (i = 0; i < answers.length; i++)
-                {
-                    answers[i].classList.remove('show-right');
-                    answers[i].classList.remove('show-wrong');
-                    answers[i].addEventListener('click', function() {
-                        if (this.classList.contains("wrong")) this.classList.add("show-wrong");
-                        if (this.classList.contains("right")) this.classList.add("show-right");
-                    }, false);
-                }
-
-                // setup timer for showing #votes
-                timerVotes  = setInterval(getVotes, 1000);
-                timerStatus = setInterval(getStatus, 1000);
-            }
-
             // is this a quiz slide? -> find answers (new version)
-            answers = Reveal.getCurrentSlide().querySelectorAll('.reveal .quiz ul li');
+            var answers = Reveal.getCurrentSlide().querySelectorAll('.reveal .quiz ul>li>input[type="checkbox"]');
             if (answers.length)
             {
-                numAnswers += answers.length;
+                console.log(answers.length + " answers");
+                numAnswers = answers.length;
 
                 // hide answers' right/wrong classification
                 for (var i = 0; i < answers.length; i++)
                 {
-                    answers[i].classList.remove('show-right');
-                    answers[i].classList.remove('show-wrong');
-                    answers[i].addEventListener('click', function() {
+                    var li = answers[i].parentElement;
+                    li.classList.remove('show-right');
+                    li.classList.remove('show-wrong');
+                    li.addEventListener('click', function() {
                         var correct = this.querySelector('input:checked');
                         this.classList.add( correct ? "show-right" : "show-wrong" );
                     }, false);
@@ -222,9 +201,8 @@ var RevealQuiz = (function(){
     // start new ballot
     function startBallot()
     {
-        var answersOld = Reveal.getCurrentSlide().getElementsByClassName('answer');
-        var answersNew = Reveal.getCurrentSlide().querySelectorAll('.reveal .quiz ul li');
-        var numAnswers = answersOld.length + answersNew.length;
+        var answers = Reveal.getCurrentSlide().querySelectorAll('.reveal .quiz ul>li>input[type="checkbox"]');
+        var numAnswers = answers.length;
         var xhr = new XMLHttpRequest();
         xhr.open('post', server + '/init/' + numAnswers, false);
         xhr.withCredentials = true;
@@ -452,8 +430,8 @@ var RevealQuiz = (function(){
     }
 
 
-	return {
-		init: function() { 
+    return {
+        init: function() { 
             return new Promise( function(resolve) {
                 
                 // setup keyboard shortcut
