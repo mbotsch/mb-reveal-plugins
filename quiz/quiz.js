@@ -39,7 +39,7 @@ var RevealQuiz = (function(){
     }
 
 
-    // DIV for chart
+    // generate DIV for chart
     var chart_div = document.createElement( 'div' );
     chart_div.classList.add( 'overlay' );
     chart_div.classList.add( 'visible' );
@@ -64,7 +64,8 @@ var RevealQuiz = (function(){
     chart_div.style.transformOrigin = 'bottom right';
     document.querySelector(".reveal").appendChild( chart_div );
 
-    // canvas for the actual chart
+
+    // generate canvas for the actual chart
     var chart = document.createElement( 'canvas' );
     chart.width        = "400";
     chart.height       = "300";
@@ -73,6 +74,7 @@ var RevealQuiz = (function(){
     chart.style.width  = "400px";
     chart.style.height = "300px";
     chart_div.appendChild( chart );
+
 
     // generate label for #votes
     var votes_div = document.createElement( 'div' );
@@ -102,12 +104,15 @@ var RevealQuiz = (function(){
     document.querySelector(".reveal").appendChild( votes_div );
 
 
-    var e = document.getElementById("quiz-qr");
-    if (e) e.classList.add("quiz-qr");
 
-    // generate QR code (user has to place DIV with id="quiz-qr" in HTML)
-    if (typeof(QRCode) != 'undefined')
-    {
+    // generate QR code for DIVs with class/id "quiz-qr"
+    var head     = document.querySelector( 'head' );
+    var qrscript = document.createElement("script");
+    qrscript.type   = "text/javascript";
+    qrscript.src    = path + "qrcode.min.js";
+    qrscript.onload = function() {
+        var e = document.getElementById("quiz-qr");
+        if (e) e.classList.add("quiz-qr");
         Array.from(document.getElementsByClassName("quiz-qr")).forEach(function(e){
             var size = parseInt(e.style.width, 10) || 300;
             var qrcode = new QRCode(e, {
@@ -121,7 +126,10 @@ var RevealQuiz = (function(){
             qrcode.makeCode(server);
         });
     }
+    head.appendChild( qrscript );
 
+
+    // write server URL in elements with class/id 'quiz-url'
     var e = document.getElementById("quiz-url");
     if (e) e.classList.add("quiz-url");
     Array.from(document.getElementsByClassName("quiz-url")).forEach(function(e){
@@ -172,7 +180,6 @@ var RevealQuiz = (function(){
             var answers = Reveal.getCurrentSlide().querySelectorAll('.reveal .quiz ul>li>input[type="checkbox"]');
             if (answers.length)
             {
-                console.log(answers.length + " answers");
                 numAnswers = answers.length;
 
                 // hide answers' right/wrong classification
@@ -186,10 +193,6 @@ var RevealQuiz = (function(){
                         this.classList.add( correct ? "show-right" : "show-wrong" );
                     }, false);
                 }
-
-                // setup timer for showing #votes
-                timerVotes  = setInterval(getVotes, 1000);
-                timerStatus = setInterval(getStatus, 1000);
             }
         }
     }
@@ -201,13 +204,10 @@ var RevealQuiz = (function(){
     // start new ballot
     function startBallot()
     {
-        var answers = Reveal.getCurrentSlide().querySelectorAll('.reveal .quiz ul>li>input[type="checkbox"]');
-        var numAnswers = answers.length;
         var xhr = new XMLHttpRequest();
         xhr.open('post', server + '/init/' + numAnswers, false);
         xhr.withCredentials = true;
         xhr.send(null);
-
         jingleQuestion.currentTime = 0;
         jingleQuestion.play();
     }
@@ -229,12 +229,16 @@ var RevealQuiz = (function(){
     function showVotes()
     {
         votes_div.style.visibility = 'visible';
+        timerVotes  = setInterval(getVotes, 1000);
+        timerStatus = setInterval(getStatus, 1000);
     }
 
     // hide votes div
     function hideVotes()
     {
         votes_div.style.visibility = 'hidden';
+        clearInterval(timerVotes);
+        clearInterval(timerStatus);
     }
 
     // get number of votes from server
