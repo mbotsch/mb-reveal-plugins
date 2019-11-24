@@ -80,10 +80,23 @@ var RevealPrint = (function(){
     {
         for (var vid of document.getElementsByTagName("video")) 
         {
-            vid["preload"] = "metadata";
-            vid.src = vid.getAttribute("data-src") + "#t=0.5";
-            vid.removeAttribute("data-src");
+            if (vid.hasAttribute("data-src"))
+            {
+                var src = vid.getAttribute("data-src");
+                if (!src.includes("#t="))
+                    vid.setAttribute("data-src", src + "#t=0.5");
+            }
             vid.removeAttribute("controls");
+        }
+
+        for (var e of document.getElementsByTagName("section")) 
+        {
+            if (e.hasAttribute("data-background-video"))
+            {
+                var src = e.getAttribute("data-background-video");
+                if (!src.includes("#t="))
+                    e.setAttribute("data-background-video", src + "#t=0.5");
+            }
         }
     }
 
