@@ -62,7 +62,7 @@ var RevealPrint = (function(){
     /* load iframes that are marked with class 'pdf'.
      * used to include simple Javascript demos in PDF
      */
-    function loadIframes()
+    function setupIframes()
     {
         for (var e of document.querySelectorAll('.reveal section iframe.pdf'))
         {
@@ -76,14 +76,25 @@ var RevealPrint = (function(){
 
     /* remove controls from videos, since they mess up printing
      */
-    function printVideos()
+    function setupVideos()
     {
         for (var vid of document.getElementsByTagName("video")) 
         {
+            vid["preload"] = "metadata";
+            vid.src = vid.getAttribute("data-src") + "#t=0.5";
+            vid.removeAttribute("data-src");
             vid.removeAttribute("controls");
-            vid.removeAttribute("autoplay");
-            vid.removeAttribute("data-autoplay");
         }
+    }
+
+
+    // set title, such that the exported PDF has the same filename
+    function setupTitle()
+    {
+        var url = window.location.pathname;
+        var filename = url.substring(url.lastIndexOf('/')+1);
+        var basename = filename.substring(0, url.lastIndexOf("."));
+        document.title = basename + "pdf";
     }
 
 
@@ -98,8 +109,17 @@ var RevealPrint = (function(){
                 var pdf = !!window.location.search.match(/print-pdf/gi);
                 if (pdf)
                 {
-                    loadIframes();
-                    printVideos();
+                    setupIframes();
+                    setupVideos();
+                    setupTitle();
+
+                    // automatically press the print button when not in headless mode
+                    if (!navigator.webdriver)
+                    {
+                        Reveal.addEventListener( 'pdf-ready', function() {
+                            setTimeout( window.print, 1000 );
+                        });
+                    }
                 }
 
                 resolve();
