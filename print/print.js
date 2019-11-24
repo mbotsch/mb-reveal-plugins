@@ -7,10 +7,13 @@ var RevealPrint = (function(){
      */
     function setHeight()
     {
-        var height = Reveal.getConfig().height;
-		Reveal.getSlides().forEach( function( slide ) {
-            slide.style.minHeight = height + "px";
-        });
+        if (!Reveal.getConfig().center)
+        {
+            var height = Reveal.getConfig().height;
+            Reveal.getSlides().forEach( function( slide ) {
+                slide.style.minHeight = height + "px";
+            });
+        }
     }
 
 
@@ -89,7 +92,10 @@ var RevealPrint = (function(){
                 vid.src = src;
                 vid.removeAttribute("data-src");
             }
+
             vid.removeAttribute("controls");
+            vid.removeAttribute("data-autoplay");
+            vid.removeAttribute("autoplay");
         }
 
         for (var e of document.getElementsByTagName("section")) 
@@ -121,8 +127,8 @@ var RevealPrint = (function(){
 		init: function() { 
             return new Promise( function(resolve) {
                 Reveal.addEventListener( 'slidechanged', checkHeight );
-                Reveal.addEventListener( 'ready', setHeight  );
                 Reveal.addEventListener( 'ready', fixFooters );
+                Reveal.addEventListener( 'ready', setHeight  );
    
                 /* are we exporting a PDF? */
                 var pdf = !!window.location.search.match(/print-pdf/gi);
