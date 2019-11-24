@@ -84,7 +84,10 @@ var RevealPrint = (function(){
             {
                 var src = vid.getAttribute("data-src");
                 if (!src.includes("#t="))
-                    vid.setAttribute("data-src", src + "#t=0.5");
+                    src = src + "#t=0.5";
+
+                vid.src = src;
+                vid.removeAttribute("data-src");
             }
             vid.removeAttribute("controls");
         }
@@ -95,7 +98,10 @@ var RevealPrint = (function(){
             {
                 var src = e.getAttribute("data-background-video");
                 if (!src.includes("#t="))
-                    e.setAttribute("data-background-video", src + "#t=0.5");
+                {
+                    src = src + "#t=0.5";
+                    e.setAttribute("data-background-video", src);
+                }
             }
         }
     }
