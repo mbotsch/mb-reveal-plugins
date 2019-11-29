@@ -45,11 +45,13 @@ var RevealPrint = (function(){
     function checkHeight()
     {
         var configHeight  = Reveal.getConfig().height;
-        var slideHeight   = Reveal.getCurrentSlide().clientHeight;
+        var slide         = Reveal.getCurrentSlide();
+        var slideHeight   = slide.clientHeight;
 
         if (slideHeight > configHeight)
         {
             console.error("slide " + slideNumber() + " is " + (slideHeight-configHeight) + "px too high");
+            slide.style.border = "1px dashed red";
         }
     }
 
@@ -126,10 +128,14 @@ var RevealPrint = (function(){
 	return {
 		init: function() { 
             return new Promise( function(resolve) {
-                Reveal.addEventListener( 'slidechanged', checkHeight );
                 Reveal.addEventListener( 'ready', fixFooters );
                 Reveal.addEventListener( 'ready', setHeight  );
    
+                if (Reveal.getConfig().checkOverflow)
+                {
+                    Reveal.addEventListener( 'slidechanged', checkHeight );
+                }
+
                 /* are we exporting a PDF? */
                 var pdf = !!window.location.search.match(/print-pdf/gi);
                 if (pdf)
