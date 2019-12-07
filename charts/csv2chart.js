@@ -69,6 +69,11 @@ var RevealChart = window.RevealChart || (function(){
 				}
 			}
 		}
+
+        // MARIO: set title
+        if (canvas.hasAttribute("data-title")) {
+            chartOptions.title = { display: true, text: canvas.getAttribute("data-title") };
+        }
 		
 		var lines = CSV.split('\n').filter(function(v){return v!==''});
 		// if labels are not defined, get them from first line
@@ -133,6 +138,11 @@ var RevealChart = window.RevealChart || (function(){
                 }
             }
             canvas.setAttribute("data-chart", type);
+
+            // title
+            if (chart.hasAttribute("title")) {
+                canvas.setAttribute("data-title", chart.getAttribute("title"));
+            }
 
             // copy chart definition to canvas
             var content = chart.firstChild.innerText; // don't use innerHTML, it's escaped
