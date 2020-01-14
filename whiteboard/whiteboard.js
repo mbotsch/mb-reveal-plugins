@@ -78,6 +78,14 @@ var RevealWhiteboard = (function(){
     var penColor  = "red";
     var color = [ "red", "black" ]; // old color handling
 
+    // audio effects
+    var laserSound = false;
+    var laserOn  = new Audio(path+'/laserOn.mp3');
+    var laserHum = new Audio(path+'/laserHum.mp3'); laserHum.loop=true;
+    var laserOff = new Audio(path+'/laserOff.mp3');
+    laserOn.onended  = function(){ updateGUI(); laserHum.play(); }
+    laserOff.onended = updateGUI;
+    
     // canvas for dynamic cursor generation
     var cursorCanvas = document.createElement( 'canvas' );
     cursorCanvas.id     = "CursorCanvas";
@@ -153,8 +161,16 @@ var RevealWhiteboard = (function(){
     var buttonEraser     = createButton(8, 104, "fa-eraser");
     buttonEraser.onclick = function(){ selectTool(ToolType.ERASER); }
 
+    var laserTimer;
     var buttonLaser      = createButton(8, 136, "fa-magic");
-    buttonLaser.onclick  = function(){ toggleLaser(); }
+    buttonLaser.onclick  = function(){ 
+        if (laserTimer) clearTimeout(laserTimer);
+        if (laserOn.paused && laserOff.paused) toggleLaser(); 
+    }
+    buttonLaser.onmousedown = function(evt){ 
+        laserTimer = setTimeout(function(){ laserSound=true; toggleLaser(); }, 500); 
+    }
+
 
 
     // add color picker to long-tap of buttonPen
@@ -395,7 +411,30 @@ var RevealWhiteboard = (function(){
     function toggleLaser()
     {
         laser = !laser;
-        updateGUI();
+        
+        if (laserSound)
+        {
+            laserOn.pause();
+            laserOn.currentTime = 0;
+            laserOff.pause();
+            laserOff.currentTime = 0;
+            laserHum.pause();
+            laserHum.currentTime = 0;
+
+            if (laser) 
+            {
+                laserOn.play();
+            }
+            else
+            {
+                laserOff.play();
+                laserSound = false;
+            }
+        }
+        else
+        {
+            updateGUI();
+        }
     }
 
 
