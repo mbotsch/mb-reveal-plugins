@@ -79,12 +79,19 @@ var RevealWhiteboard = (function(){
     var color = [ "red", "black" ]; // old color handling
 
     // audio effects
+    var lightsaber = document.getElementById("lightsaber");
     var laserSound = false;
     var laserOn  = new Audio(path+'/laserOn.mp3');
     var laserHum = new Audio(path+'/laserHum.mp3'); laserHum.loop=true;
     var laserOff = new Audio(path+'/laserOff.mp3');
-    laserOn.onended  = function(){ updateGUI(); laserHum.play(); }
-    laserOff.onended = updateGUI;
+    laserOn.onended  = function(){ 
+        updateGUI(); 
+        laserHum.play(); 
+    }
+    laserOff.onended = function(){
+        updateGUI();
+        lightsaber.style.visibility = "hidden";
+    }
     
     // canvas for dynamic cursor generation
     var cursorCanvas = document.createElement( 'canvas' );
@@ -168,7 +175,12 @@ var RevealWhiteboard = (function(){
         if (laserOn.paused && laserOff.paused) toggleLaser(); 
     }
     buttonLaser.onmousedown = function(evt){ 
-        laserTimer = setTimeout(function(){ laserSound=true; toggleLaser(); }, 500); 
+        laserTimer = setTimeout(function(){ 
+            lightsaber.style.left = evt.pageX + "px";
+            lightsaber.style.top  = evt.pageY + "px";
+            laserSound=true; 
+            toggleLaser(); 
+        }, 500); 
     }
 
 
@@ -423,12 +435,15 @@ var RevealWhiteboard = (function(){
 
             if (laser) 
             {
+                lightsaber.style.visibility = "visible";
+                lightsaber.classList.add("on");
                 laserOn.play();
             }
             else
             {
                 laserOff.play();
                 laserSound = false;
+                lightsaber.classList.remove("on");
             }
         }
         else
@@ -465,7 +480,10 @@ var RevealWhiteboard = (function(){
         if (laser) 
         {
             buttonLaser.style.color = "#2a9ddf";
-            document.body.style.cursor = laserCursor;
+            if (lightsaber.classList.contains("on"))
+                document.body.style.cursor = 'none';
+            else
+                document.body.style.cursor = laserCursor;
         }
         else
         {
@@ -1503,7 +1521,7 @@ var RevealWhiteboard = (function(){
         if (!tool) return;
 
         // no mouse button pressed -> show laser, active auto-hide, return
-        if (!evt.buttons)
+        if (!evt.buttons && !laser)
         {
             showCursor();
             triggerHideCursor();
@@ -1730,6 +1748,17 @@ var RevealWhiteboard = (function(){
         container.addEventListener( 'touchmove',  touchmove, {passive: false} );
         container.addEventListener( 'touchend',   touchend );
     }
+
+
+    // move light saber 
+    window.addEventListener( 'pointermove', function(evt){
+        if (lightsaber.classList.contains("on"))
+        {
+            lightsaber.style.left = evt.pageX + "px";
+            lightsaber.style.top  = evt.pageY + "px";
+            lightsaber.style.bottom = '';
+        }
+    });
 
 
     // Intercept page leave when data is not saved
