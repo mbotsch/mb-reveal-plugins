@@ -53,3 +53,5 @@ MIT licensed
 Copyright (C) 2016 Asvin Goel\
 Copyright (C) 2017-2019 Mario Botsch
 
+CSS-based light saber adapted from https://codepen.io/ncerminara/pen/KzurJ
+Light saber sounds from https://www.soundboard.com/sb/LightsaberSounds
