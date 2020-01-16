@@ -299,7 +299,7 @@ var RevealWhiteboard = (function(){
         canvas.onclick       = killEvent;
         canvas.ondblclick    = function(evt) {
             killEvent(evt);
-            if (laser) toggleLightSaber(evt);
+            if (!tool && laser) toggleLightSaber(evt);
         }
     }
 
