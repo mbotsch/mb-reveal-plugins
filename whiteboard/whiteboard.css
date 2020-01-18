@@ -61,8 +61,11 @@
 	display: block;
 	filter: blur(1px);
 	height: 0;
-	background: linear-gradient(to right, rgb(135,220,90) 0%,rgb(254,254,254) 30%,rgb(254,254,254) 50%,rgb(254,254,254) 70%,rgb(135,220,90) 100%);
-	box-shadow: 0 0 8px #7EC855;
+    /* green color */
+	/*background: linear-gradient(to right, rgb(135,220,90) 0%,rgb(254,254,254) 30%,rgb(254,254,254) 50%,rgb(254,254,254) 70%,rgb(135,220,90) 100%);*/
+	/*box-shadow: 0 0 8px #7EC855;*/
+	background: linear-gradient(to right, rgba(229,17,21,1) 0%,rgba(254,254,254,1) 30%,rgba(254,254,254,1) 47%,rgba(254,254,254,1) 71%,rgba(229,17,21,1) 100%);
+	box-shadow: 0 0 8px #e51115;
 	animation-name: glow_animation;
 	animation-duration: 2s;
 	animation-iteration-count: infinite;
@@ -92,3 +95,4 @@
     transform: scaleX(1);
   }
 }
+
