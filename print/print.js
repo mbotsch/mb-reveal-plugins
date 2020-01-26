@@ -53,6 +53,10 @@ var RevealPrint = (function(){
             console.error("slide " + slideNumber() + " is " + (slideHeight-configHeight) + "px too high");
             slide.style.border = "1px dashed red";
         }
+        else
+        {
+            slide.style.border = '';
+        }
     }
 
 

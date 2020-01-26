@@ -108,12 +108,9 @@ var RevealMath = window.RevealMath || (function(){
                     MathJax.Hub.Queue( Reveal.layout );
                     MathJax.Hub.Queue( [ 'log', console, "mathjax typeset done" ]); // just for debugging
 
-                    // in print mode, resolve promise after typesetting is done
-                    if (printMode) MathJax.Hub.Queue( resolve );
+                    // resolve promise after typesetting is done
+                    MathJax.Hub.Queue( resolve );
                 } );
-
-                // if not in print mode, resolve promise immediately
-                if (!printMode) resolve();
             });
         }
     }
