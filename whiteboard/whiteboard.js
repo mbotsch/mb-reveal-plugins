@@ -76,7 +76,6 @@ var RevealWhiteboard = (function(){
     var penCursor;
     var currentCursor;
     var penColor  = "red";
-    var color = [ "red", "black" ]; // old color handling
 
 
     // setup light saber
@@ -88,16 +87,11 @@ var RevealWhiteboard = (function(){
     lightsaber.appendChild(handle);
     lightsaber.appendChild(plasma);
     document.body.appendChild(lightsaber);
-    // light saber sound effects
     var laserOn  = new Audio(path+'/laserOn.mp3');
     var laserHum = new Audio(path+'/laserHum.mp3'); laserHum.loop=true;
     var laserOff = new Audio(path+'/laserOff.mp3');
-    laserOn.onended  = function(){ 
-        laserHum.play(); 
-    }
-    laserOff.onended = function(){
-        lightsaber.style.visibility = "hidden";
-    }
+    laserOn.onended  = function(){ laserHum.play(); }
+    laserOff.onended = function(){ lightsaber.style.visibility = "hidden"; }
    
 
     // canvas for dynamic cursor generation
@@ -154,17 +148,16 @@ var RevealWhiteboard = (function(){
     {
         var b = document.createElement( 'div' );
         b.classList.add("whiteboard");
-        b.style.position = "absolute";
-        b.style.zIndex   = 40;
-        b.style.left     = left + "px";
-        b.style.bottom   = bottom + "px";  
-        b.style.top      = "auto";
-        b.style.right    = "auto";
-        b.style.fontSize = "16px";
-        b.style.padding  = "3px";
+        b.style.position     = "absolute";
+        b.style.zIndex       = 40;
+        b.style.left         = left + "px";
+        b.style.bottom       = bottom + "px";
+        b.style.top          = "auto";
+        b.style.right        = "auto";
+        b.style.fontSize     = "16px";
+        b.style.padding      = "3px";
         b.style.borderRadius = "3px";
-        b.style.color    = "lightgrey";
-        //b.style.background = background;
+        b.style.color        = "lightgrey";
         if (icon)
         {
             b.classList.add("fas");
@@ -208,22 +201,22 @@ var RevealWhiteboard = (function(){
     // create container for canvases
     var container = document.createElement( 'div' );
     container.setAttribute( 'data-prevent-swipe', '' );
-    container.style.transition = "none";
-    container.style.margin     = "0";
-    container.style.padding    = "0";
-    container.style.border     = "1px solid transparent";
-    container.style.boxSizing  = "content-box";
-    container.style.position   = "absolute";
-    container.style.top        = "0px";
-    container.style.left       = "0px";
-    container.style.width      = "100%";
-    container.style.height     = "100%";
-    container.style.maxHeight  = "100%";
-    container.style.zIndex = "34";
-    container.style.pointerEvents = "none";
-    container.style.overflowX = 'hidden';
-    container.style.overflowY = 'hidden';
-    container.style.touchAction = 'pan-y'; // avoid Chrome's 'go-back' by horizontal swipe
+    container.style.transition              = "none";
+    container.style.margin                  = "0";
+    container.style.padding                 = "0";
+    container.style.border                  = "1px solid transparent";
+    container.style.boxSizing               = "content-box";
+    container.style.position                = "absolute";
+    container.style.top                     = "0px";
+    container.style.left                    = "0px";
+    container.style.width                   = "100%";
+    container.style.height                  = "100%";
+    container.style.maxHeight               = "100%";
+    container.style.zIndex                  = "34";
+    container.style.pointerEvents           = "none";
+    container.style.overflowX               = 'hidden';
+    container.style.overflowY               = 'hidden';
+    container.style.touchAction             = 'pan-y'; // avoid Chrome's 'go-back' by horizontal swipe
     container.style.WebkitOverflowScrolling = 'auto';
     slides.appendChild( container );
 
@@ -232,6 +225,7 @@ var RevealWhiteboard = (function(){
     var drawingCanvas = [ {id: "annotations" }, {id: "whiteboard" } ];
     setupDrawingCanvas(0);
     setupDrawingCanvas(1);
+
 
     /*
      * create a drawing canvas
@@ -253,12 +247,11 @@ var RevealWhiteboard = (function(){
         canvas.style.height     = height + "px";
         canvas.width            = width  * canvasScale;
         canvas.height           = height * canvasScale;
-        canvas.style.position = "absolute";
-        canvas.style.top = "0px";
-        canvas.style.left = "0px";
+        canvas.style.position   = "absolute";
+        canvas.style.top        = "0px";
+        canvas.style.left       = "0px";
 
-        // DO NOT USE low-latency contect, it fails on Chrome/Linux for 
-        // whiteboards with >2 pages
+        // DO NOT USE low-latency context, it fails on Chrome/Linux for whiteboards with >2 pages
         //var opts = {lowLatency: true, desynchronized: true};
         //var ctx = canvas.getContext("2d", opts);
         //if (ctx.getContextAttributes && ctx.getContextAttributes().desynchronized)
@@ -545,6 +538,7 @@ var RevealWhiteboard = (function(){
 
     }
 
+
     /*
      * return height of current scribbles (max y-coordinate)
      */
@@ -564,23 +558,10 @@ var RevealWhiteboard = (function(){
                 var event = slideData.events[i];
                 if (event.type == "draw")
                 {
-                    // old syntax
-                    if (event.curve)
+                    for (var j=1; j<event.coords.length; j+=2)
                     {
-                        for (var j=1; j<event.curve.length; j++)
-                        {
-                            var y = event.curve[j].y;
-                            if (y > height) height = y;
-                        }
-                    }
-                    // new syntax
-                    else if (event.coords)
-                    {
-                        for (var j=1; j<event.coords.length; j+=2)
-                        {
-                            var y = event.coords[j];
-                            if (y > height) height = y;
-                        }
+                        var y = event.coords[j];
+                        if (y > height) height = y;
                     }
                 }
             }
@@ -604,6 +585,7 @@ var RevealWhiteboard = (function(){
         var height = pageHeight * Math.max(1, Math.ceil(scribbleHeight/pageHeight));
         setWhiteboardHeight(height);
     }
+
 
     /*
      * set whiteboard height to specified value
@@ -631,6 +613,7 @@ var RevealWhiteboard = (function(){
         // remember to restore previous drawings with playbackEvents(1)!
     }
 
+
     /*
      * add one page to whiteboard (only when drawing on back-board!)
      */
@@ -642,6 +625,7 @@ var RevealWhiteboard = (function(){
         setWhiteboardHeight( boardHeight + pageHeight );
         playbackEvents(1);
     }
+
 
 
     /*****************************************************************
@@ -922,7 +906,6 @@ var RevealWhiteboard = (function(){
             a.href = window.URL.createObjectURL( annotationJSON() );
 
         } catch( error ) {
-            a.innerHTML += " (" + error + ")";
             console.error("whiteboard download error: " + error);
         }
         a.click();
@@ -1174,21 +1157,6 @@ var RevealWhiteboard = (function(){
 	}
 
 
-    /*****************************************************************
-     * Low-level drawing routines
-     * Called by event playback
-     * Called by stroke methods called from pointer/mouse callbacks
-     ******************************************************************/
-
-    /*
-     * clear given canvas
-     */
-    function clearCanvas( ctx, scale=canvasScale )
-    {
-        ctx.clearRect( 0, 0, ctx.canvas.width/scale, ctx.canvas.height/scale );
-    }
-
-
 
     /*****************************************************************
      * Record and play-back events
@@ -1247,46 +1215,39 @@ var RevealWhiteboard = (function(){
 
 
     /*
+     * clear given canvas
+     */
+    function clearCanvas( ctx, scale=canvasScale )
+    {
+        ctx.clearRect( 0, 0, ctx.canvas.width/scale, ctx.canvas.height/scale );
+    }
+
+
+    /*
      * Draw the curve stored in event to canvas ID
      */
     function drawCurve( ctx, event )
     {
-        // old syntax
-        if (event.curve)
-        {
-            ctx.strokeStyle = color[mode];
+        ctx.strokeStyle = event.color;
 
+        // draw curve as quadratic spline
+        var coords = event.coords;
+        var cx, cy;
+        if (coords.length > 4)
+        {
             ctx.beginPath();
-            ctx.moveTo(event.curve[0].x, event.curve[0].y);
-            ctx.lineTo(event.curve[1].x, event.curve[1].y);
-            for (var i=1; i < event.curve.length; i++)
-                ctx.lineTo(event.curve[i].x, event.curve[i].y);
-            ctx.stroke();
-        }
-        // new syntax
-        else if (event.coords)
-        {
-            ctx.strokeStyle = event.color;
+            ctx.moveTo(coords[0], coords[1]);
+            cx = 0.5 * (coords[0] + coords[2]);
+            cy = 0.5 * (coords[1] + coords[3]);
+            ctx.lineTo(cx, cy);
 
-            // draw curve as quadratic spline
-            var coords = event.coords;
-            var cx, cy;
-            if (coords.length > 4)
+            for (var i=2; i<coords.length-3; i+=2)
             {
-                ctx.beginPath();
-                ctx.moveTo(coords[0], coords[1]);
-                cx = 0.5 * (coords[0] + coords[2]);
-                cy = 0.5 * (coords[1] + coords[3]);
-                ctx.lineTo(cx, cy);
-
-                for (var i=2; i<coords.length-3; i+=2)
-                {
-                    cx = 0.5 * (coords[i  ] + coords[i+2]);
-                    cy = 0.5 * (coords[i+1] + coords[i+3]);
-                    ctx.quadraticCurveTo(coords[i], coords[i+1], cx, cy);
-                }
-                ctx.stroke();
+                cx = 0.5 * (coords[i  ] + coords[i+2]);
+                cy = 0.5 * (coords[i+1] + coords[i+3]);
+                ctx.quadraticCurveTo(coords[i], coords[i+1], cx, cy);
             }
+            ctx.stroke();
         }
     };
 
@@ -1301,22 +1262,10 @@ var RevealWhiteboard = (function(){
         ctx.lineWidth = 2 * eraserRadius;
         ctx.beginPath();
 
-        // old syntax
-        if (event.curve)
-        {
-            var curve = event.curve;
-            ctx.moveTo(curve[0].x, curve[0].y);
-            for (var i=0; i<curve.length; i++)
-                ctx.lineTo(curve[i].x, curve[i].y);
-        }
-        // new syntax
-        else if (event.coords)
-        {
-            var coords = event.coords;
-            ctx.moveTo(coords[0], coords[1]);
-            for (var i=2; i<coords.length-1; i+=2)
-                ctx.lineTo(coords[i], coords[i+1]);
-        }
+        var coords = event.coords;
+        ctx.moveTo(coords[0], coords[1]);
+        for (var i=2; i<coords.length-1; i+=2)
+            ctx.lineTo(coords[i], coords[i+1]);
 
         ctx.stroke();
         ctx.restore();
@@ -1597,149 +1546,6 @@ var RevealWhiteboard = (function(){
     }
 
 
-    function mousedown(evt) 
-    {
-        // no tool selected -> return
-        if (!tool) return;
-
-        switch(tool)
-        {
-            case ToolType.PEN:
-            case ToolType.ERASER:
-                startStroke(evt);
-                break;
-        }
-    }
-
-
-    function mousemove(evt) 
-    {
-        // no tool selected -> return
-        if (!tool) return;
-
-        // no mouse button pressed -> show laser, active auto-hide, return
-        if (!evt.buttons)
-        {
-            showCursor();
-            triggerHideCursor();
-            return;
-        }
-
-        // mouse button pressed
-        switch(tool)
-        {
-            case ToolType.PEN:
-            case ToolType.ERASER:
-                continueStroke(evt);
-                break;
-        }
-    }
-
-
-    function mouseup(evt)
-    {
-        // no tool selected -> return
-        if (!tool) return;
-
-        switch(tool)
-        {
-            case ToolType.PEN:
-            case ToolType.ERASER:
-                stopStroke(evt);
-                break;
-        }
-    }
-
-
-    function touchstart(evt) 
-    {
-        // no tool selected -> return
-        if (!tool) return;
-
-        if ((tool==ToolType.PEN) || (tool==ToolType.ERASER))
-        {
-            // iPad pencil -> draw
-            for (let t of evt.targetTouches) 
-            {
-                if (t.touchType == "stylus")
-                {
-                    slideScale  = Reveal.getScale();
-                    slideRect   = slides.getBoundingClientRect();
-                    slideScroll = drawingCanvas[mode].container.scrollTop;
-                    evt.offsetX = (t.clientX - slideRect.left) / slideScale;
-                    evt.offsetY = (t.clientY - slideRect.top ) / slideScale + slideScroll;
-                    startStroke(evt);
-                    return;
-                }
-            }
-        }
-
-        // finger touch -> laser
-        showCursor(laserCursor);
-        triggerHideCursor();
-    }
-
-
-    function touchmove(evt) 
-    {
-        // no tool selected -> return
-        if (!tool) return;
-
-        if ((tool==ToolType.PEN) || (tool==ToolType.ERASER))
-        {
-            // iPad pencil -> draw
-            for (let t of evt.changedTouches) 
-            {
-                if (t.touchType == "stylus")
-                {
-                    evt.offsetX = (t.clientX - slideRect.left) / slideScale;
-                    evt.offsetY = (t.clientY - slideRect.top) / slideScale + slideScroll;
-                    continueStroke(evt);
-                    return;
-                }
-            }
-        }
-
-        // finger touch -> laser
-        showCursor();
-        triggerHideCursor();
-    }
-
-
-    function touchend(evt) 
-    {
-        // no tool selected -> return
-        if (!tool) return;
-
-        if ((tool==ToolType.PEN) || (tool==ToolType.ERASER))
-        {
-            // iPad pencil -> draw
-            for (let t of evt.changedTouches) 
-            {
-                if (t.touchType == "stylus")
-                {
-                    stopStroke(evt);
-                    return;
-                }
-            }
-        }
-    }
-
-
-    /*
-     * what to do when the slide changes 
-     */
-    function slideChanged(evt)
-    {
-        if ( !printMode ) {
-            slideIndices = Reveal.getIndices();
-            closeWhiteboard();
-            playbackEvents( 0 );
-        }
-    }
-
-
-
 
     /*****************************************************************
      * Setup event listeners
@@ -1752,15 +1558,9 @@ var RevealWhiteboard = (function(){
         container.addEventListener( 'pointermove', pointermove, {passive: false} );
         container.addEventListener( 'pointerup',   pointerup );
     }
-    // setup mouse and touch events
     else
     {
-        container.addEventListener( 'mousedown',  mousedown, true );
-        container.addEventListener( 'mousemove',  mousemove, {passive: false} );
-        container.addEventListener( 'mouseup',    mouseup );
-        container.addEventListener( 'touchstart', touchstart, true );
-        container.addEventListener( 'touchmove',  touchmove, {passive: false} );
-        container.addEventListener( 'touchend',   touchend );
+        console.err("whiteboard requires PointerEvents");
     }
 
 
@@ -1833,6 +1633,16 @@ var RevealWhiteboard = (function(){
         }
     });
 
+
+    // what to do when the slide changes 
+    function slideChanged(evt)
+    {
+        if ( !printMode ) {
+            slideIndices = Reveal.getIndices();
+            closeWhiteboard();
+            playbackEvents( 0 );
+        }
+    }
 
 
     // whenever slide changes, update slideIndices and redraw
