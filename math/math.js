@@ -20,7 +20,7 @@ var RevealMath = window.RevealMath || (function(){
 	var mathjax = options.mathjax || 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/';
     var config  = options.config  || 'tex-svg.js';
 	var url = mathjax + config;
-
+    
 
 	function defaults( options, defaultOptions ) 
     {
@@ -106,7 +106,7 @@ var RevealMath = window.RevealMath || (function(){
                     },
                     startup: {
                         ready: () => {
-                            console.log('MathJax is loaded, but not yet initialized');
+                            console.log('mathjax loaded');
                             //MathJax.startup.defaultReady();
                         }
                     },
@@ -130,28 +130,15 @@ var RevealMath = window.RevealMath || (function(){
                         tags: 'ams',
                         packages: {
                             '[+]': ['ams']
-                        },
-                        macros: {
-                            R: "{{\\mathrm{{I}\\kern-.15em{R}}}}",
-                            laplace: "{\\Delta}",
-                            grad: "{\\nabla}",
-                            T: "^{\\mathsf{T}}",
-                            abs: ['\\left\\lvert #1 \\right\\rvert', 1],
-                            norm: ['\\left\\Vert #1 \\right\\Vert', 1],
-                            iprod: ['\\left\\langle #1 \\right\\rangle', 1],
-                            vec: ['{\\mathbf{#1}}', 1],
-                            mat: ['{\\mathbf{#1}}', 1],
-                            set: ['\\mathcal{#1}', 1],
-                            func: ['\\mathrm{#1}', 1],
-                            trans: ['{#1}\\mkern-1mu^{\\mathsf{T}}', 1],
-                            matrix: ['\\begin{bmatrix} #1 \\end{bmatrix}', 1],
-                            vector: ['\\begin{pmatrix} #1 \\end{pmatrix}', 1],
-                            of: ['\\mkern{-0mu}\\left( #1 \\right\)', 1],
-                            diff: ['\\frac{\\mathrm{d}{#1}}{\\mathrm{d}{#2}}', 2],
-                            pdiff: ['\\frac{\\partial {#1}}{\\partial {#2}}', 2]
                         }
                     }
                 };
+
+
+                if (options.macros)
+                {
+                    window.MathJax.tex.macros = options.macros;
+                }
 
 
                 loadScript( url, function() {
