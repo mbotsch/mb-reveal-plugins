@@ -131,6 +131,13 @@ var RevealMath = window.RevealMath || (function(){
                         packages: {
                             '[+]': ['ams']
                         }
+                    },
+                    options: {
+                        menuOptions: {
+                            settings: {
+                                assistiveMml: false // disable it, since it messes up speaker notes
+                            }
+                        }
                     }
                 };
 
