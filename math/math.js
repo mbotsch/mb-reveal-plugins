@@ -133,9 +133,14 @@ var RevealMath = window.RevealMath || (function(){
                         }
                     },
                     options: {
+                        // disable menu
+                        renderActions: {
+                            addMenu: [0, '', '']
+                        },
+                        // disable assistive-mml, since it messes up speaker notes
                         menuOptions: {
                             settings: {
-                                assistiveMml: false // disable it, since it messes up speaker notes
+                                assistiveMml: false 
                             }
                         }
                     }
