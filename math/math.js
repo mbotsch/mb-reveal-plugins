@@ -17,47 +17,36 @@
 var RevealMath = window.RevealMath || (function(){
 
 	var options = Reveal.getConfig().math || {};
-	var mathjax = options.mathjax || 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js';
-    var config = options.config || 'TeX-AMS_SVG-full';
-	var url = mathjax + '?config=' + config;
+	var mathjax = options.mathjax || 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/';
+    var config  = options.config  || 'tex-svg.js';
+	var url = mathjax + config;
 
-	var defaultOptions = {
-		messageStyle: 'none',
-		tex2jax: {
-			inlineMath: [ [ '$', '$' ], [ '\\(', '\\)' ] ],
-			skipTags: [ 'script', 'noscript', 'style', 'textarea', 'pre' ]
-		},
-		skipStartupTypeset: true,
-        AssistiveMML: { disabled: true },
-        menuSettings: { zoom: "Double-Click" },
-        styles: { ".reveal section .MJXc-display": { margin: "0.5em 0em 1em 0em" },
-                  ".reveal section .MathJax_SVG_Display": { margin: "0.5em 0em 1em 0em" } },
-        "fast-preview": { disabled: true },
-        "CommonHTML": { matchFontHeight: false },
-        "HTML-CSS":   { matchFontHeight: false },
-        "SVG":        { matchFontHeight: false, scale: "90", useFontCache: false, useGlobalCache: false }
-	};
 
-	function defaults( options, defaultOptions ) {
-
-		for ( var i in defaultOptions ) {
-			if ( !options.hasOwnProperty( i ) ) {
+	function defaults( options, defaultOptions ) 
+    {
+		for ( var i in defaultOptions ) 
+        {
+			if ( !options.hasOwnProperty( i ) ) 
+            {
 				options[i] = defaultOptions[i];
 			}
 		}
-
 	}
 
-	function loadScript( url, callback ) {
 
-		var head = document.querySelector( 'head' );
+	function loadScript( url, callback ) 
+    {
+		var head   = document.querySelector( 'head' );
 		var script = document.createElement( 'script' );
 		script.type = 'text/javascript';
-		script.src = url;
+        script.id   = 'MathJax-script';
+		script.src  = url;
 
 		// Wrapper for callback to make sure it only fires once
-		var finish = function() {
-			if( typeof callback === 'function' ) {
+		var finish = function() 
+        {
+			if( typeof callback === 'function' ) 
+            {
 				callback.call();
 				callback = null;
 			}
@@ -74,8 +63,34 @@ var RevealMath = window.RevealMath || (function(){
 
 		// Normal browsers
 		head.appendChild( script );
-
 	}
+
+
+    function fixLinks()
+    {
+        for (var a of document.getElementsByTagName("a")) 
+        {
+            var href = a.href;
+            if (href.baseVal)
+            {
+                var label = href.baseVal;
+                if (label.includes("#mjx-eqn"))
+                {
+                    label = decodeURIComponent(label.substring(1));
+                    var eqn = document.getElementById(label);
+                    if (eqn)
+                    {
+                        var s = eqn.closest("section");
+                        if (s)
+                        {
+                            a.href.baseVal = "#" + s.id;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 
 	return {
 		init: function() { 
@@ -83,9 +98,61 @@ var RevealMath = window.RevealMath || (function(){
 
                 var printMode = ( /print-pdf/gi ).test( window.location.search );
 
-                defaults( options, defaultOptions );
-                defaults( options.tex2jax, defaultOptions.tex2jax );
-                options.mathjax = options.config = null;
+
+                window.MathJax = {
+                    loader: {
+                        load: ['[tex]/ams'],
+                        typeset: false
+                    },
+                    startup: {
+                        ready: () => {
+                            console.log('MathJax is loaded, but not yet initialized');
+                            //MathJax.startup.defaultReady();
+                        }
+                    },
+                    svg: {
+                        scale: 1.5,                    // DOES NOT WORK!!!! global scaling factor for all expressions
+                        minScale: .5,                  // smallest scaling factor to use
+                        matchFontHeight: false,        // true to match ex-height of surrounding font
+                        mtextInheritFont: true,        // true to make mtext elements use surrounding font
+                        merrorInheritFont: true,       // true to make merror text use surrounding font
+                        mathmlSpacing: false,          // true for MathML spacing rules, false for TeX rules
+                        skipAttributes: {},            // RFDa and other attributes NOT to copy to the output
+                        exFactor: .5,                  // default size of ex in em units
+                        displayAlign: 'center',        // default for indentalign when set to 'auto'
+                        displayIndent: '0',            // default for indentshift when set to 'auto'
+                        fontCache: 'none',             // or 'global' or 'none'
+                        localID: null,                 // ID to use for local font cache (for single equation processing)
+                        internalSpeechTitles: true,    // insert <title> tags with speech content
+                        titleID: 0                     // initial id number to use for aria-labeledby titles
+                    },
+                    tex: {
+                        tags: 'ams',
+                        packages: {
+                            '[+]': ['ams']
+                        },
+                        macros: {
+                            R: "{{\\mathrm{{I}\\kern-.15em{R}}}}",
+                            laplace: "{\\Delta}",
+                            grad: "{\\nabla}",
+                            T: "^{\\mathsf{T}}",
+                            abs: ['\\left\\lvert #1 \\right\\rvert', 1],
+                            norm: ['\\left\\Vert #1 \\right\\Vert', 1],
+                            iprod: ['\\left\\langle #1 \\right\\rangle', 1],
+                            vec: ['{\\mathbf{#1}}', 1],
+                            mat: ['{\\mathbf{#1}}', 1],
+                            set: ['\\mathcal{#1}', 1],
+                            func: ['\\mathrm{#1}', 1],
+                            trans: ['{#1}\\mkern-1mu^{\\mathsf{T}}', 1],
+                            matrix: ['\\begin{bmatrix} #1 \\end{bmatrix}', 1],
+                            vector: ['\\begin{pmatrix} #1 \\end{pmatrix}', 1],
+                            of: ['\\mkern{-0mu}\\left( #1 \\right\)', 1],
+                            diff: ['\\frac{\\mathrm{d}{#1}}{\\mathrm{d}{#2}}', 2],
+                            pdiff: ['\\frac{\\partial {#1}}{\\partial {#2}}', 2]
+                        }
+                    }
+                };
+
 
                 loadScript( url, function() {
 
@@ -93,24 +160,22 @@ var RevealMath = window.RevealMath || (function(){
                     // Prevent cookie from changing the renderer, since only
                     // SVG will be installed. Do this by overwriting the
                     // cookie's renderer setting.
-                    var keks = MathJax.HTML.Cookie.Get("menu");
-                    if (keks && keks.renderer)
-                    {
-                        MathJax.HTML.Cookie.Set("menu", { renderer: "" });
-                    }
-
-                    // pass config options to MathJax
-                    MathJax.Hub.Config( options );
+                    //var keks = MathJax.HTML.Cookie.Get("menu");
+                    //if (keks && keks.renderer)
+                    //{
+                        //MathJax.HTML.Cookie.Set("menu", { renderer: "" });
+                    //}
 
                     // Typeset followed by an immediate reveal.js layout since
                     // the typesetting process could affect slide height
-                    MathJax.Hub.Queue( [ 'Typeset', MathJax.Hub ] );
-                    MathJax.Hub.Queue( Reveal.layout );
-                    MathJax.Hub.Queue( [ 'log', console, "mathjax typeset done" ]); // just for debugging
-
-                    // resolve promise after typesetting is done
-                    MathJax.Hub.Queue( resolve );
-                } );
+                    window.MathJax.startup.defaultReady();
+                    MathJax.startup.promise.then(() => {
+                        console.log("mathjax typeset done");
+                        Reveal.layout();
+                        fixLinks();
+                        resolve();
+                    });
+                });
             });
         }
     }
