@@ -59,6 +59,11 @@ var RevealWhiteboard = (function(){
     var colors     = config.colors || [ "black", "red", "green", "blue", "yellow", "cyan", "magenta" ];
     var background = config.background || "white";
 
+    var lightsaber_enabled = !!config.lightsaber_enabled;
+    if (config.lightsaber_enabled === undefined) {
+        lightsaber_enabled = false;
+    }
+
     // handle CSS zoom (Chrome), CSS scale (others), and highDPI/retina scale
     // (has to be updated later on, i.e., after reveal layout)
     var reveal      = document.querySelector( '.reveal' );
@@ -434,6 +439,9 @@ var RevealWhiteboard = (function(){
 
     function toggleLightSaber(evt)
     {
+        if (!config.lightsaber_enabled)
+            return;
+
         laserOn.pause();
         laserOn.currentTime = 0;
         laserOff.pause();
